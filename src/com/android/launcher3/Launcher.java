@@ -64,6 +64,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
 import android.os.StrictMode;
 import android.os.SystemClock;
 import android.os.UserHandle;
@@ -134,6 +135,8 @@ public class Launcher extends Activity
                    View.OnTouchListener, PageSwitchListener, LauncherProviderChangeListener {
     static final String TAG = "Launcher";
     static final boolean LOGD = false;
+        
+    static long lastClick;
 
     static final boolean PROFILE_STARTUP = false;
     static final boolean DEBUG_WIDGETS = false;
@@ -2546,10 +2549,18 @@ public class Launcher extends Activity
             if (v instanceof PendingAppWidgetHostView) {
                 onClickPendingWidget((PendingAppWidgetHostView) v);
             }
+        } else {
+            if (System.currentTimeMillis()-lastClick<200) {
+            	Log.d(TAG, "doubleclick - sleep");
+            	PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
+                if(pm != null)
+                    pm.goToSleep(SystemClock.uptimeMillis());
+            }
         }
+        lastClick = System.currentTimeMillis();
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+	@SuppressLint("ClickableViewAccessibility")
     public boolean onTouch(View v, MotionEvent event) {
         return false;
     }
